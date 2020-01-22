@@ -4,7 +4,7 @@ import sys
 import re
 import ctypes
 from glob import glob
-from subprocess import check_call, check_output
+from subprocess import check_call, check_output, CalledProcessError
 import pytest
 
 
@@ -72,8 +72,15 @@ def test_compile_and_run(tmpdir, src_file):
 
     # Compile with rustc first to verify that the source code is ok. This way, if gcc-rust fails, we
     # know it's gcc-rust at fault, not the source code.
-    compile_shared_library_with_rustc(src_file, rustc_so)
-    compile_shared_library_with_gcc_rust(src_file, gcc_rust_so)
+    try:
+        compile_shared_library_with_rustc(src_file, rustc_so)
+    except CalledProcessError as e:
+        raise Exception(f"rustc failed to compile {src_file!r}") from e
+
+    try:
+        compile_shared_library_with_gcc_rust(src_file, gcc_rust_so)
+    except CalledProcessError as e:
+        raise Exception(f"gcc-rust failed to compile {src_file!r}") from e
 
     test_funcs = find_test_functions(gcc_rust_so)
     assert test_funcs, "No test functions found!"
@@ -84,7 +91,7 @@ def test_compile_and_run(tmpdir, src_file):
     for f in test_funcs:
         gcc_rust_exit_code = call_test_function(gcc_rust_so, f)
         rustc_exit_code = call_test_function(rustc_so, f)
-        assert gcc_rust_exit_code == rustc_exit_code
+        assert gcc_rust_exit_code == rustc_exit_code, f"Exit code mismatch for {f!r}"
 
 
 if __name__ == "__main__":
