@@ -4,5 +4,5 @@ fn foo(x: &[u8]) -> [u8; 4] {
 
 pub fn test() -> i32 {
     let arr = &[1, 2, 3, 4];
-    foo(&arr[..])
+    i32::from_le_bytes(foo(&arr[..]))
 }
