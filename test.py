@@ -88,4 +88,4 @@ def test_compile_and_run(tmpdir, src_file):
 
 
 if __name__ == "__main__":
-    sys.exit(pytest.main([__file__]))
+    sys.exit(pytest.main(sys.argv))
