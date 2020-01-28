@@ -50,7 +50,7 @@ def compile_shared_library_with_gcc_rust(src_file, out_file):
 
 def compile_shared_library_with_rustc(src_file, out_file):
     # Not using cdylib to ensure that all our `pub` functions are exported.
-    check_call(["rustc", src_file, "-o", out_file, "--crate-type", "dylib"])
+    check_call([RUSTC_PATH, src_file, "-o", out_file, "--crate-type", "dylib"])
 
 
 def call_test_function(so_path, func_name):
