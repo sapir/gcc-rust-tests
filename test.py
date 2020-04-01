@@ -49,6 +49,14 @@ def compile_shared_library_with_gcc_rust(src_file, out_file):
     )
 
 
+def summarize_output(output):
+    m = re.search(r"(?m)internal compiler error: .+$", output)
+    if m:
+        return m.group()
+
+    return None
+
+
 def compile_shared_library_with_rustc(src_file, out_file):
     # Not using cdylib to ensure that all our `pub` functions are exported.
     check_call([RUSTC_PATH, src_file, "-o", out_file, "--crate-type", "dylib"])
@@ -82,7 +90,13 @@ def test_compile_and_run(tmpdir, src_file):
         compile_shared_library_with_gcc_rust(src_file, gcc_rust_so)
     except CalledProcessError as e:
         output = e.output.decode()
-        raise Exception(f"gcc-rust failed to compile {src_file!r}:\n{output}") from e
+        sys.stderr.write(output)
+
+        summary = summarize_output(output)
+        if not summary:
+            summary = "gcc-rust compilation error"
+
+        raise Exception(summary) from e
 
     test_funcs = find_test_functions(gcc_rust_so)
     assert test_funcs, "No test functions found!"
