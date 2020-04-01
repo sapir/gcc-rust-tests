@@ -4,7 +4,7 @@ import sys
 import re
 import ctypes
 from glob import glob
-from subprocess import check_call, check_output, CalledProcessError
+from subprocess import check_call, check_output, CalledProcessError, STDOUT
 import pytest
 
 
@@ -42,9 +42,10 @@ def find_test_functions(so_path):
 
 
 def compile_shared_library_with_gcc_rust(src_file, out_file):
-    check_call(
+    check_output(
         [GCC_RUST_PATH, src_file, "-o", out_file, "-shared", "-fPIC"]
-        + GCC_COMPILE_FLAGS
+        + GCC_COMPILE_FLAGS,
+        stderr=STDOUT,
     )
 
 
@@ -80,7 +81,8 @@ def test_compile_and_run(tmpdir, src_file):
     try:
         compile_shared_library_with_gcc_rust(src_file, gcc_rust_so)
     except CalledProcessError as e:
-        raise Exception(f"gcc-rust failed to compile {src_file!r}") from e
+        output = e.output.decode()
+        raise Exception(f"gcc-rust failed to compile {src_file!r}:\n{output}") from e
 
     test_funcs = find_test_functions(gcc_rust_so)
     assert test_funcs, "No test functions found!"
