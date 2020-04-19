@@ -50,6 +50,10 @@ def compile_shared_library_with_gcc_rust(src_file, out_file):
 
 
 def summarize_output(output):
+    m = re.search(r"(?m)panicked at.+$", output)
+    if m:
+        return m.group()
+
     m = re.search(r"(?m)internal compiler error: .+$", output)
     if m:
         return m.group()
