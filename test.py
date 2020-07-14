@@ -32,7 +32,7 @@ def list_exported_symbols(so_path):
 
 
 def is_test_function(name):
-    return re.match(r"^[^:]+::test[^:]*$", name)
+    return re.match(r"^[^:]+::test[^:]*(?:::h[0-9a-f]+)?$", name)
 
 
 def find_test_functions(so_path):
