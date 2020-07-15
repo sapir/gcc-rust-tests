@@ -110,7 +110,11 @@ def test_compile_and_run(tmpdir, src_file):
 
     for f in test_funcs:
         gcc_rust_exit_code = call_test_function(gcc_rust_so, f)
+        print(f"{f} gcc exit code: {gcc_rust_exit_code}")
+
         rustc_exit_code = call_test_function(rustc_so, f)
+        print(f"{f} rustc exit code: {rustc_exit_code}")
+
         assert (
             gcc_rust_exit_code == rustc_exit_code
         ), f"Exit code mismatch for {f!r}, got {gcc_rust_exit_code} instead of {rustc_exit_code}"
