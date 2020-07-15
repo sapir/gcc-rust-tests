@@ -11,5 +11,5 @@ where
 }
 
 pub fn test() -> i32 {
-    fold(0, |a, b| a + b, (0..10).into_iter())
+    fold(0, |a, b| a + b, (0..9).into_iter())
 }
